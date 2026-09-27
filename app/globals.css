@@ -48,6 +48,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
 }
 
 :root {
@@ -83,23 +85,25 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --brand: oklch(0.7 0.18 148);
-  --brand-foreground: oklch(0.145 0 0);
+  --brand: oklch(0.66 0.12 172);
+  --brand-foreground: oklch(1 0 0);
+  --surface: oklch(0.975 0.002 286);
+  --surface-raised: oklch(1 0 0);
 }
 
 .dark {
-  --background: oklch(0.18 0 0);
+  --background: oklch(0.155 0.006 286);
   --foreground: oklch(1 0 0);
-  --card: oklch(0.213 0 0);
+  --card: oklch(0.205 0.006 286);
   --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.213 0 0);
+  --popover: oklch(0.205 0.006 286);
   --popover-foreground: oklch(1 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.25 0 0);
+  --secondary: oklch(0.245 0.006 286);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.77 0 0);
+  --muted: oklch(0.245 0.006 286);
+  --muted-foreground: oklch(0.72 0.01 286);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
@@ -119,8 +123,10 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --brand: oklch(0.786 0.201 148);
-  --brand-foreground: oklch(0.145 0 0);
+  --brand: oklch(0.75 0.13 172);
+  --brand-foreground: oklch(0.16 0.02 172);
+  --surface: oklch(0.185 0.006 286);
+  --surface-raised: oklch(0.235 0.007 286);
 }
 
 @layer base {
@@ -132,5 +138,45 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  /* Entrance animation. Only transform/opacity so it stays on the compositor
+     and never triggers layout. Stagger via --enter-delay on the element. */
+  @keyframes enter-rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-enter {
+    animation: enter-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  /* Hide scrollbars on the horizontal rails without losing scrollability. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-enter {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

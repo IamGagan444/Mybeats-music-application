@@ -1,0 +1,64 @@
+import { Heart, LogIn } from "lucide-react";
+import Link from "next/link";
+import { HeaderSearch } from "@/components/music/HeaderSearch";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { TrackArtwork } from "@/components/music/TrackArtwork";
+import { Button } from "@/components/ui/button";
+import { getCurrentUser } from "@/lib/current-user";
+
+export async function Topbar({ initialQuery }: { initialQuery?: string }) {
+  const user = await getCurrentUser();
+
+  return (
+    <header className="flex items-center gap-3 pb-6 sm:gap-4">
+      <div className="min-w-0 flex-1">
+        <HeaderSearch initialQuery={initialQuery} />
+      </div>
+
+      {user ? (
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/library"
+            className="flex items-center gap-3 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <span className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-surface-raised">
+              <TrackArtwork src={user.avatar} iconClassName="size-4" />
+            </span>
+            <span className="hidden flex-col leading-tight sm:flex">
+              <span className="max-w-36 truncate text-sm font-semibold">
+                {user.name}
+              </span>
+              <span className="w-fit rounded-md bg-brand/15 px-1.5 py-0.5 text-[10px] font-semibold text-brand">
+                {user.source === "audius" ? "Audius" : "Member"}
+              </span>
+            </span>
+          </Link>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Your library"
+            render={<Link href="/library" />}
+            nativeButton={false}
+            className="size-11 rounded-full bg-surface text-muted-foreground hover:bg-surface-raised hover:text-foreground"
+          >
+            <Heart className="size-4.5" />
+          </Button>
+          <ThemeToggle className="size-11 rounded-full bg-surface text-muted-foreground hover:bg-surface-raised hover:text-foreground" />
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle className="size-11 rounded-full bg-surface text-muted-foreground hover:bg-surface-raised hover:text-foreground" />
+          <Button
+            render={<Link href="/login" />}
+            nativeButton={false}
+            className="h-11 gap-2 rounded-full bg-brand px-5 text-xs font-bold tracking-wide text-brand-foreground uppercase transition-transform hover:scale-105 hover:bg-brand"
+          >
+            <LogIn className="size-4" />
+            <span className="hidden sm:inline">Log in</span>
+          </Button>
+        </div>
+      )}
+    </header>
+  );
+}

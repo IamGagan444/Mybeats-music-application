@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AudioEngine } from "@/components/music/AudioEngine";
 import { FavoritesProvider } from "@/components/music/FavoritesProvider";
-import { GlobalPlayer } from "@/components/music/GlobalPlayer";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getCurrentUser } from "@/lib/current-user";
 import "./globals.css";
 
-const geistSans = Geist({
+// Self-hosted by next/font — no runtime request to Google, and only the
+// weights actually used are shipped.
+const poppins = Poppins({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -31,9 +29,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${poppins.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col bg-background">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -44,7 +42,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             {children}
             <FavoritesProvider isSignedIn={Boolean(user)} />
             <AudioEngine />
-            <GlobalPlayer />
           </TooltipProvider>
         </ThemeProvider>
       </body>

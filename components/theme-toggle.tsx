@@ -3,9 +3,10 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useHydrated } from "@/hooks/use-hydrated";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
   // The resolved theme is unknowable on the server, so every attribute that
   // depends on it stays neutral until hydration or the markup won't match.
@@ -25,7 +26,10 @@ export function ThemeToggle() {
           : "Toggle theme"
       }
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="rounded-full text-muted-foreground hover:text-foreground"
+      className={cn(
+        "rounded-full text-muted-foreground hover:text-foreground",
+        className
+      )}
     >
       {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>

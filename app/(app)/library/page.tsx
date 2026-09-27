@@ -1,6 +1,6 @@
 import { Heart, History, ListMusic, LogIn } from "lucide-react";
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
+import { Topbar } from "@/components/layout/Topbar";
 import { TrackList } from "@/components/music/TrackList";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -54,13 +54,13 @@ export default async function LibraryPage({
   if (!user) {
     return (
       <>
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pt-6 pb-40 sm:px-6">
+        <Topbar />
+        <div>
           <div className="flex flex-col gap-6">
             <h1 className="text-3xl font-bold tracking-tight">Your library</h1>
             <SignedOut />
           </div>
-        </main>
+        </div>
       </>
     );
   }
@@ -94,8 +94,8 @@ export default async function LibraryPage({
 
   return (
     <>
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pt-6 pb-40 sm:px-6">
+      <Topbar />
+      <div>
         <div className="flex flex-col gap-6">
           <h1 className="text-3xl font-bold tracking-tight">Your library</h1>
 
@@ -137,7 +137,7 @@ export default async function LibraryPage({
             </p>
           ) : null}
         </div>
-      </main>
+      </div>
     </>
   );
 }

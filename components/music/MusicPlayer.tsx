@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
+import { FavoriteButton } from "@/components/music/FavoriteButton";
 import { PlayerControls, VolumeControl } from "@/components/music/PlayerControls";
 import { ProgressBar } from "@/components/music/ProgressBar";
 import { TrackArtwork } from "@/components/music/TrackArtwork";
@@ -49,18 +50,16 @@ export function MusicPlayer({
     <div
       role="region"
       aria-label="Music player"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-card/95 shadow-[0_-8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:shadow-[0_-8px_24px_rgba(0,0,0,0.5)]"
+      className="shrink-0 rounded-3xl bg-surface px-4 py-3 sm:px-6"
     >
-      <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-3 py-2.5 sm:gap-6 sm:px-6 sm:py-3">
+      <div className="flex items-center gap-3 sm:gap-6">
         {/* Track identity */}
-        <div className="flex min-w-0 items-center gap-3 sm:w-[30%]">
-          <div className="size-12 shrink-0 overflow-hidden rounded-md shadow-md sm:size-14">
+        <div className="flex min-w-0 items-center gap-3 sm:w-[26%]">
+          <div className="size-12 shrink-0 overflow-hidden rounded-xl sm:size-14">
             <TrackArtwork src={currentTrack.artwork} iconClassName="size-5" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-foreground">
-              {currentTrack.title}
-            </p>
+            <p className="truncate text-sm font-semibold">{currentTrack.title}</p>
             <p className="truncate text-xs text-muted-foreground">
               {currentTrack.artist}
             </p>
@@ -74,7 +73,7 @@ export function MusicPlayer({
         </div>
 
         {/* Transport + progress */}
-        <div className="flex flex-1 flex-col items-center gap-1">
+        <div className="flex flex-1 flex-col items-center gap-1.5">
           <PlayerControls
             isPlaying={isPlaying}
             isLoading={isLoading}
@@ -84,7 +83,7 @@ export function MusicPlayer({
             hasPrevious={hasPrevious}
             hasNext={hasNext}
           />
-          <div className="hidden w-full max-w-xl sm:block">
+          <div className="hidden w-full max-w-2xl sm:block">
             <ProgressBar
               currentTime={currentTime}
               duration={duration}
@@ -93,8 +92,9 @@ export function MusicPlayer({
           </div>
         </div>
 
-        {/* Volume */}
-        <div className="hidden shrink-0 justify-end sm:flex sm:w-[30%]">
+        {/* Secondary actions */}
+        <div className="hidden shrink-0 items-center justify-end gap-1 sm:flex sm:w-[26%]">
+          <FavoriteButton track={currentTrack} />
           <VolumeControl
             volume={volume}
             isMuted={isMuted}
@@ -104,8 +104,7 @@ export function MusicPlayer({
         </div>
       </div>
 
-      {/* Mobile progress sits full-width under the controls */}
-      <div className="px-3 pb-2 sm:hidden">
+      <div className="pt-1 sm:hidden">
         <ProgressBar currentTime={currentTime} duration={duration} onSeek={onSeek} />
       </div>
     </div>

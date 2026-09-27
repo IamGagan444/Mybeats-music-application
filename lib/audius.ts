@@ -72,6 +72,7 @@ export function toMusicTrack(raw: AudiusTrackRaw): MusicTrack {
     artist: raw.user?.name ?? "Unknown Artist",
     artistHandle: raw.user?.handle,
     artwork: raw.artwork?.["480x480"] ?? raw.artwork?.["150x150"] ?? undefined,
+    artworkSmall: raw.artwork?.["150x150"] ?? raw.artwork?.["480x480"] ?? undefined,
     duration: raw.duration,
     genre: raw.genre ?? undefined,
     streamUrl: getStreamUrl(id),
