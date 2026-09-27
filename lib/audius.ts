@@ -7,12 +7,17 @@
 // where it's unavoidable (OAuth/PKCE login).
 import type { MusicTrack } from "@/types/music";
 
-const AUDIUS_HOST = "https://discoveryprovider.audius.co";
+export const AUDIUS_HOST = "https://discoveryprovider.audius.co";
+export const AUDIUS_API_BASE = `${AUDIUS_HOST}/v1`;
 const AUDIUS_APP_NAME = "MyBeats";
 
 export async function audiusFetch<T>(
   path: string,
-  params: Record<string, string> = {}
+  params: Record<string, string> = {},
+  // Public catalog data is identical for every visitor, so it's cached at the
+  // fetch layer. Pages that read cookies render dynamically, which would
+  // otherwise mean an upstream Audius call on every single request.
+  options: { revalidate?: number } = {}
 ): Promise<T> {
   const url = new URL(path, AUDIUS_HOST);
   url.searchParams.set("app_name", AUDIUS_APP_NAME);
@@ -21,7 +26,9 @@ export async function audiusFetch<T>(
     url.searchParams.set(key, value);
   }
 
-  const res = await fetch(url.toString());
+  const res = await fetch(url.toString(), {
+    next: { revalidate: options.revalidate ?? 300 },
+  });
   if (!res.ok) {
     throw new Error(`Audius API error: ${res.status}`);
   }

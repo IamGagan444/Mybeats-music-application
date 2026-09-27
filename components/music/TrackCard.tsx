@@ -2,6 +2,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDuration } from "@/lib/utils";
 import type { MusicTrack } from "@/types/music";
+import { FavoriteButton } from "@/components/music/FavoriteButton";
 import { TrackArtwork } from "@/components/music/TrackArtwork";
 import { TrackPlayButton } from "@/components/music/TrackPlayButton";
 
@@ -30,8 +31,11 @@ export function TrackCard({ track, queue }: TrackCardProps) {
 
       <div className="min-w-0">
         <p className="truncate text-sm font-bold text-foreground">{track.title}</p>
-        <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-xs text-muted-foreground">{track.artist}</p>
+        <div className="flex items-center justify-between gap-1">
+          <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+            {track.artist}
+          </p>
+          <FavoriteButton track={track} />
           <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
             {formatDuration(track.duration)}
           </span>

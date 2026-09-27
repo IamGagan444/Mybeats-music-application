@@ -1,3 +1,4 @@
+import { AlertCircle } from "lucide-react";
 import { Suspense } from "react";
 import { audiusFetch, toMusicTrack, type AudiusTrackRaw } from "@/lib/audius";
 import { SiteHeader } from "@/components/site-header";
@@ -5,9 +6,6 @@ import { TrackList } from "@/components/music/TrackList";
 import { RecentlyPlayed } from "@/components/music/RecentlyPlayed";
 import { PlayAllButton } from "@/components/music/PlayAllButton";
 import type { MusicTrack } from "@/types/music";
-
-// Trending changes constantly; re-fetch on the server every 5 minutes.
-export const revalidate = 300;
 
 async function getTrendingTracks(): Promise<MusicTrack[]> {
   const { data } = await audiusFetch<{ data: AudiusTrackRaw[] }>(
@@ -65,12 +63,32 @@ async function TrendingSection() {
   );
 }
 
-export default function Home() {
+const AUTH_ERRORS: Record<string, string> = {
+  cancelled: "Login cancelled.",
+  expired: "That login attempt expired. Please try again.",
+  state_mismatch: "Login failed a security check. Please try again.",
+  failed: "Couldn't complete login with Audius.",
+};
+
+export default async function Home({ searchParams }: PageProps<"/">) {
+  const { auth_error: authError } = await searchParams;
+  const authMessage =
+    typeof authError === "string" ? AUTH_ERRORS[authError] : undefined;
+
   return (
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pt-6 pb-40 sm:px-6">
         <div className="flex flex-col gap-10">
+          {authMessage ? (
+            <p
+              role="status"
+              className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            >
+              <AlertCircle className="size-4 shrink-0" />
+              {authMessage}
+            </p>
+          ) : null}
           <Suspense fallback={<SectionSkeleton />}>
             <TrendingSection />
           </Suspense>

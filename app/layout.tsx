@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AudioEngine } from "@/components/music/AudioEngine";
+import { FavoritesProvider } from "@/components/music/FavoritesProvider";
 import { GlobalPlayer } from "@/components/music/GlobalPlayer";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { getCurrentUser } from "@/lib/current-user";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,7 +24,9 @@ export const metadata: Metadata = {
     "Stream trending tracks and discover new artists from the Audius network.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const user = await getCurrentUser();
+
   return (
     <html
       lang="en"
@@ -38,6 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <TooltipProvider>
             {children}
+            <FavoritesProvider isSignedIn={Boolean(user)} />
             <AudioEngine />
             <GlobalPlayer />
           </TooltipProvider>
