@@ -1,4 +1,5 @@
 import { AlertCircle, Music2 } from "lucide-react";
+import Link from "next/link";
 import { RailScroller } from "@/components/music/RailScroller";
 import { TrackArtwork } from "@/components/music/TrackArtwork";
 import { TrackPlayButton } from "@/components/music/TrackPlayButton";
@@ -67,9 +68,18 @@ export function SongRail({
                     <p className="truncate text-xs font-semibold text-white">
                       {track.title}
                     </p>
-                    <p className="truncate text-[11px] text-white/70">
-                      {track.artist}
-                    </p>
+                    {track.artistHandle ? (
+                      <Link
+                        href={`/artist/${encodeURIComponent(track.artistHandle)}`}
+                        className="block truncate text-[11px] text-white/70 transition-colors hover:text-white hover:underline"
+                      >
+                        {track.artist}
+                      </Link>
+                    ) : (
+                      <p className="truncate text-[11px] text-white/70">
+                        {track.artist}
+                      </p>
+                    )}
                   </div>
                   <span className="shrink-0 translate-y-1 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 pointer-coarse:translate-y-0 pointer-coarse:opacity-100">
                     <TrackPlayButton

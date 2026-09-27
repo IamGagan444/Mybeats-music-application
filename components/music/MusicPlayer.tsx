@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 import { FavoriteButton } from "@/components/music/FavoriteButton";
 import { PlayerControls, VolumeControl } from "@/components/music/PlayerControls";
 import { ProgressBar } from "@/components/music/ProgressBar";
@@ -60,9 +61,18 @@ export function MusicPlayer({
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{currentTrack.title}</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {currentTrack.artist}
-            </p>
+            {currentTrack.artistHandle ? (
+              <Link
+                href={`/artist/${encodeURIComponent(currentTrack.artistHandle)}`}
+                className="block truncate text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline"
+              >
+                {currentTrack.artist}
+              </Link>
+            ) : (
+              <p className="truncate text-xs text-muted-foreground">
+                {currentTrack.artist}
+              </p>
+            )}
             {error ? (
               <p className="mt-0.5 flex items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="size-3 shrink-0" />

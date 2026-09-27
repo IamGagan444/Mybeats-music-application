@@ -1,6 +1,7 @@
 "use client";
 
 import { BadgeCheck, Disc3, ListMusic, Search, Users } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SongRail } from "@/components/music/SongRail";
 import { TrackArtwork } from "@/components/music/TrackArtwork";
@@ -13,8 +14,11 @@ const DEBOUNCE_MS = 350;
 
 function UserCard({ user }: { user: MusicUser }) {
   return (
-    <div className="flex w-32 shrink-0 flex-col items-center gap-2 rounded-2xl bg-surface-raised/50 p-4 text-center sm:w-36">
-      <span className="size-20 overflow-hidden rounded-full">
+    <Link
+      href={`/artist/${encodeURIComponent(user.handle)}`}
+      className="group flex w-32 shrink-0 flex-col items-center gap-2 rounded-2xl bg-surface-raised/50 p-4 text-center transition-colors outline-none hover:bg-surface-raised focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-36"
+    >
+      <span className="size-20 overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-105">
         <TrackArtwork src={user.avatar} iconClassName="size-5" />
       </span>
       <div className="min-w-0">
@@ -28,7 +32,7 @@ function UserCard({ user }: { user: MusicUser }) {
           {user.followerCount?.toLocaleString() ?? 0} followers
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
 

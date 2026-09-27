@@ -43,7 +43,7 @@ export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
     })),
     ...data.users.slice(0, 3).map((u) => ({
       key: `u-${u.id}`,
-      href: `/search?q=${encodeURIComponent(u.name)}`,
+      href: `/artist/${encodeURIComponent(u.handle)}`,
       art: u.avatar,
       title: u.name,
       subtitle: `@${u.handle}`,
