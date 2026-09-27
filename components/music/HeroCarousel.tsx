@@ -22,7 +22,7 @@ export function HeroCarousel({ tracks }: { tracks: MusicTrack[] }) {
   return (
     <section
       aria-label="Featured tracks"
-      className="animate-enter relative flex h-70 items-center justify-center sm:h-80"
+      className="animate-enter relative flex h-70 items-center justify-center overflow-x-clip sm:h-80"
     >
       {items.map((track, index) => {
         const offset = index - active;
