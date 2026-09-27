@@ -8,11 +8,12 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   return (
     <>
       <Topbar initialQuery={query} />
-      <div className="flex flex-col gap-6">
-        <h1 className="text-2xl font-bold tracking-tight">
+      <div className="flex min-w-0 flex-col gap-4 sm:gap-6">
+        <h1 className="text-xl font-bold tracking-tight break-words sm:text-2xl">
           {query ? (
             <>
-              Results for <span className="text-brand">&ldquo;{query}&rdquo;</span>
+              Results for{" "}
+              <span className="text-brand break-all">&ldquo;{query}&rdquo;</span>
             </>
           ) : (
             "Search"

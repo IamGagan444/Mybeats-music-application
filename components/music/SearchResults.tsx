@@ -2,7 +2,7 @@
 
 import { BadgeCheck, Disc3, ListMusic, Search, Users } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SongRail } from "@/components/music/SongRail";
 import { TrackArtwork } from "@/components/music/TrackArtwork";
 import { Input } from "@/components/ui/input";
@@ -63,12 +63,12 @@ function Rail<T>({
 }) {
   if (items.length === 0) return null;
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex min-w-0 flex-col gap-4">
       <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
         {icon}
         {title}
       </h2>
-      <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+      <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 no-scrollbar sm:mx-0 sm:px-0">
         {items.map(render)}
       </div>
     </section>
@@ -84,6 +84,7 @@ export function SearchResults({
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [debounced, setDebounced] = useState(initialQuery);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), DEBOUNCE_MS);
@@ -103,33 +104,51 @@ export function SearchResults({
     data.albums.length === 0;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="relative max-w-md">
+    <div className="flex min-w-0 flex-col gap-8">
+      <form
+        role="search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setDebounced(query.trim());
+          inputRef.current?.blur();
+        }}
+        className="relative w-full max-w-md"
+      >
         <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
+          ref={inputRef}
           type="search"
           value={query}
           autoFocus={autoFocus}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search tracks, artists, playlists…"
           aria-label="Search"
+          inputMode="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
           className="h-11 rounded-full border-transparent bg-surface-raised pl-11 text-sm"
         />
-      </div>
+        {/* Safari/iOS only submits a form on Return when it has a submit button. */}
+        <button type="submit" className="sr-only" tabIndex={-1}>
+          Search
+        </button>
+      </form>
 
       {isError ? (
         <p className="rounded-2xl border border-dashed border-border py-14 text-center text-sm text-muted-foreground">
           Search failed. Please try again.
         </p>
       ) : isFetching && debounced ? (
-        <div className="flex gap-4">
+        <div className="flex gap-4 overflow-hidden">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="aspect-square w-38 rounded-2xl sm:w-41" />
           ))}
         </div>
       ) : isEmpty ? (
         <p className="rounded-2xl border border-dashed border-border py-14 text-center text-sm text-muted-foreground">
-          No results for &ldquo;{debounced}&rdquo;
+          No results for &ldquo;<span className="break-all">{debounced}</span>&rdquo;
         </p>
       ) : (
         <>

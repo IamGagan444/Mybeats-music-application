@@ -17,6 +17,7 @@ export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
   const [debounced, setDebounced] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), DEBOUNCE_MS);
@@ -56,14 +57,16 @@ export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
     const trimmed = query.trim();
     if (!trimmed) return;
     setOpen(false);
+    inputRef.current?.blur();
     router.push(`/search?q=${encodeURIComponent(trimmed)}`);
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-sm">
+    <div ref={containerRef} className="relative w-full min-w-0 max-w-sm">
       <form role="search" onSubmit={submit}>
         <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
+          ref={inputRef}
           type="search"
           value={query}
           onChange={(e) => {
@@ -75,12 +78,21 @@ export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
           placeholder="What do you want to listen to?"
           aria-label="Search"
           aria-expanded={open && suggestions.length > 0}
+          inputMode="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
           className="h-10 rounded-full border-transparent bg-surface-raised pl-11 text-sm"
         />
+        {/* Safari/iOS only submits a form on Return when it has a submit button. */}
+        <button type="submit" className="sr-only" tabIndex={-1}>
+          Search
+        </button>
       </form>
 
       {open && suggestions.length > 0 ? (
-        <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-2xl border border-border/60 bg-popover shadow-2xl">
+        <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-[60svh] overflow-y-auto overscroll-contain rounded-2xl border border-border/60 bg-popover shadow-2xl">
           <ul>
             {suggestions.map((item) => (
               <li key={item.key}>
