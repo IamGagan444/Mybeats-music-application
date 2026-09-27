@@ -2,32 +2,36 @@
 
 import { Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { selectCurrentTrack, usePlayerStore } from "@/stores/player";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { playerActions } from "@/store/playerSlice";
+import { selectCurrentTrack } from "@/store/selectors";
 import type { MusicTrack } from "@/types/music";
 
 export function PlayAllButton({ tracks }: { tracks: MusicTrack[] }) {
-  const currentId = usePlayerStore((s) => selectCurrentTrack(s)?.id);
-  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const dispatch = useAppDispatch();
+  const currentId = useAppSelector((s) => selectCurrentTrack(s)?.id);
+  const isPlaying = useAppSelector((s) => s.player.isPlaying);
 
-  const isPlayingThisList = isPlaying && tracks.some((t) => t.id === currentId);
+  const isInThisList = Boolean(currentId && tracks.some((t) => t.id === currentId));
+  const isPlayingThisList = isPlaying && isInThisList;
 
-  const handleClick = () => {
-    const { playTrack, togglePlay } = usePlayerStore.getState();
-    // Already inside this list — just toggle instead of restarting it.
-    if (currentId && tracks.some((t) => t.id === currentId)) {
-      togglePlay();
+  const onClick = () => {
+    if (isInThisList) {
+      dispatch(playerActions.togglePlay());
       return;
     }
-    if (tracks[0]) playTrack(tracks[0], tracks);
+    if (tracks[0]) {
+      dispatch(playerActions.playTrack({ track: tracks[0], queue: tracks }));
+    }
   };
 
   return (
     <Button
       type="button"
       size="lg"
-      onClick={handleClick}
+      onClick={onClick}
       disabled={tracks.length === 0}
-      aria-label={isPlayingThisList ? "Pause trending" : "Play trending"}
+      aria-label={isPlayingThisList ? "Pause" : "Play"}
       className="h-12 gap-2 rounded-full bg-brand px-7 text-sm font-bold tracking-wide text-brand-foreground uppercase shadow-lg transition-transform hover:scale-105 hover:bg-brand active:scale-95"
     >
       {isPlayingThisList ? (

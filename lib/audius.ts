@@ -5,7 +5,7 @@
 // minutes or indefinitely. Calling the public REST API directly with native
 // `fetch` sidesteps that bundling issue entirely. Revisit @audius/sdk only
 // where it's unavoidable (OAuth/PKCE login).
-import type { MusicTrack } from "@/types/music";
+import type { MusicCollection, MusicTrack, MusicUser } from "@/types/music";
 
 export const AUDIUS_HOST = "https://discoveryprovider.audius.co";
 export const AUDIUS_API_BASE = `${AUDIUS_HOST}/v1`;
@@ -51,7 +51,11 @@ export interface AudiusTrackRaw {
   title: string;
   duration: number;
   genre?: string | null;
+  mood?: string | null;
+  tags?: string | null;
+  release_date?: string | null;
   play_count?: number;
+  favorite_count?: number;
   artwork?: {
     "480x480"?: string;
     "150x150"?: string;
@@ -75,9 +79,61 @@ export function toMusicTrack(raw: AudiusTrackRaw): MusicTrack {
     artworkSmall: raw.artwork?.["150x150"] ?? raw.artwork?.["480x480"] ?? undefined,
     duration: raw.duration,
     genre: raw.genre ?? undefined,
+    mood: raw.mood ?? undefined,
+    tags: raw.tags ? raw.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
+    releaseDate: raw.release_date ?? undefined,
     streamUrl: getStreamUrl(id),
     provider: "audius",
     playCount: raw.play_count,
+    favoriteCount: raw.favorite_count,
     isVerified: raw.user?.is_verified,
+  };
+}
+
+interface AudiusImage {
+  "150x150"?: string;
+  "480x480"?: string;
+  "1000x1000"?: string;
+}
+
+export interface AudiusUserRaw {
+  id: string;
+  handle: string;
+  name?: string;
+  is_verified?: boolean;
+  follower_count?: number;
+  track_count?: number;
+  profile_picture?: AudiusImage | null;
+}
+
+export interface AudiusCollectionRaw {
+  id: string;
+  playlist_name?: string;
+  is_album?: boolean;
+  track_count?: number;
+  artwork?: AudiusImage | null;
+  user?: { name?: string; handle?: string } | null;
+}
+
+export function toMusicUser(raw: AudiusUserRaw): MusicUser {
+  return {
+    id: raw.id,
+    handle: raw.handle,
+    name: raw.name ?? raw.handle,
+    avatar: raw.profile_picture?.["150x150"] ?? raw.profile_picture?.["480x480"],
+    isVerified: raw.is_verified,
+    followerCount: raw.follower_count,
+    trackCount: raw.track_count,
+  };
+}
+
+export function toMusicCollection(raw: AudiusCollectionRaw): MusicCollection {
+  return {
+    id: raw.id,
+    name: raw.playlist_name ?? "Untitled",
+    artwork: raw.artwork?.["150x150"] ?? raw.artwork?.["480x480"],
+    owner: raw.user?.name ?? "Unknown",
+    trackCount: raw.track_count ?? 0,
+    isAlbum: Boolean(raw.is_album),
   };
 }

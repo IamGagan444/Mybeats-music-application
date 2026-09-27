@@ -5,7 +5,7 @@ import { TrackList } from "@/components/music/TrackList";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/session";
-import { getCurrentUser } from "@/lib/current-user";
+import { getCurrentUser, getMyBeatsUser } from "@/lib/current-user";
 import { listFavorites } from "@/lib/favorites";
 import { getHistoryTracks, getLibraryTracks } from "@/lib/audius-user";
 import type { MusicTrack } from "@/types/music";
@@ -49,7 +49,10 @@ function SignedOut() {
 export default async function LibraryPage({
   searchParams,
 }: PageProps<"/library">) {
-  const user = await getCurrentUser();
+  const [user, myBeatsUser] = await Promise.all([
+    getCurrentUser(),
+    getMyBeatsUser(),
+  ]);
 
   if (!user) {
     return (
@@ -76,7 +79,7 @@ export default async function LibraryPage({
 
   try {
     if (activeTab === "favorites") {
-      tracks = await listFavorites(user);
+      tracks = myBeatsUser ? await listFavorites(myBeatsUser.id) : [];
     } else {
       const accessToken = await getAccessToken();
       if (accessToken && user.audiusUserId) {

@@ -7,7 +7,11 @@ import { HeroCarousel } from "@/components/music/HeroCarousel";
 import { RecentlyPlayed } from "@/components/music/RecentlyPlayed";
 import { SongRail, SongRailSkeleton } from "@/components/music/SongRail";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getMyBeatsUser } from "@/lib/current-user";
 import { getTrendingTracks, isGenre } from "@/lib/genres";
+import { getPreferences, listLanguages } from "@/lib/preferences";
+import { buildHomeFeed } from "@/lib/recommendations/home";
+import { buildSignals } from "@/lib/recommendations/signals";
 import type { MusicTrack } from "@/types/music";
 
 const AUTH_ERRORS: Record<string, string> = {
@@ -17,7 +21,8 @@ const AUTH_ERRORS: Record<string, string> = {
   failed: "Couldn't complete login with Audius.",
 };
 
-async function TrendingSections({ genre }: { genre?: string }) {
+/** A chosen genre is a browse action, so it bypasses the personalized feed. */
+async function GenreBrowse({ genre }: { genre: string }) {
   let tracks: MusicTrack[] = [];
   let error: string | null = null;
 
@@ -31,22 +36,86 @@ async function TrendingSections({ genre }: { genre?: string }) {
     <>
       <ArtworkPreconnect tracks={tracks} />
       <HeroCarousel tracks={tracks} />
-
-      <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Select Categories
-        </h2>
-        <CategoryChips active={genre} />
-      </section>
-
+      <Categories active={genre} />
       <SongRail
-        title={genre ? `Popular in ${genre}` : "Popular songs"}
+        title={`Popular in ${genre}`}
         tracks={tracks}
         error={error}
-        emptyMessage={
-          genre ? `Nothing trending in ${genre} right now.` : "No tracks available."
-        }
+        emptyMessage={`Nothing trending in ${genre} right now.`}
       />
+    </>
+  );
+}
+
+function Categories({ active }: { active?: string }) {
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-lg font-semibold tracking-tight">Select Categories</h2>
+      <CategoryChips active={active} />
+    </section>
+  );
+}
+
+async function PersonalizedHome() {
+  const user = await getMyBeatsUser();
+  const preferences = user ? await getPreferences(user.id) : null;
+
+  const [languages, signals] = await Promise.all([
+    listLanguages().catch(() => []),
+    buildSignals(user?.id ?? null, preferences),
+  ]);
+
+  const feed = await buildHomeFeed({
+    preferences,
+    languageNames: new Map(languages.map((l) => [l.code, l.name])),
+    signals,
+  });
+
+  const heroTracks = feed.forYou.length > 0 ? feed.forYou : feed.trending;
+
+  return (
+    <>
+      <ArtworkPreconnect tracks={heroTracks} />
+      <HeroCarousel tracks={heroTracks} />
+      <Categories />
+
+      {feed.forYou.length > 0 ? (
+        <SongRail title="Made for you" tracks={feed.forYou} />
+      ) : null}
+
+      <SongRail
+        title="Trending now"
+        tracks={feed.trending}
+        emptyMessage="No tracks available."
+      />
+
+      {feed.languageSections.map((section) => (
+        <SongRail
+          key={section.key}
+          title={`${section.title} picks`}
+          tracks={section.tracks}
+        />
+      ))}
+
+      {feed.genreSections.map((section) => (
+        <SongRail
+          key={section.key}
+          title={`Trending ${section.title}`}
+          tracks={section.tracks}
+        />
+      ))}
+
+      {feed.moodSections.map((section) => (
+        <SongRail
+          key={section.key}
+          title={`${section.title} mood`}
+          tracks={section.tracks}
+        />
+      ))}
+
+      {feed.popularThisWeek.length > 0 ? (
+        <SongRail title="Popular this week" tracks={feed.popularThisWeek} />
+      ) : null}
     </>
   );
 }
@@ -82,7 +151,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         ) : null}
 
         <Suspense key={genre ?? "all"} fallback={<HomeSkeleton />}>
-          <TrendingSections genre={genre} />
+          {genre ? <GenreBrowse genre={genre} /> : <PersonalizedHome />}
         </Suspense>
 
         <RecentlyPlayed />

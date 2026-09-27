@@ -24,12 +24,16 @@ export function isGenre(value: string | undefined): value is (typeof GENRES)[num
   return Boolean(value) && (GENRES as readonly string[]).includes(value!);
 }
 
+export type TrendingTime = "week" | "month" | "year" | "allTime";
+
 export async function getTrendingTracks(
   genre?: string,
-  limit = 24
+  limit = 24,
+  time?: TrendingTime
 ): Promise<MusicTrack[]> {
   const params: Record<string, string> = { limit: String(limit) };
   if (genre) params.genre = genre;
+  if (time) params.time = time;
 
   const { data } = await audiusFetch<{ data: AudiusTrackRaw[] }>(
     "/v1/tracks/trending",

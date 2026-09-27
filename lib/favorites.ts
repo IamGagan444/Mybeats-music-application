@@ -2,35 +2,18 @@ import "server-only";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
-import { getAccessToken } from "@/lib/session";
-import { getFavoriteTracks, setTrackFavorite } from "@/lib/audius-user";
-import type { CurrentUser } from "@/lib/current-user";
 import type { MusicTrack } from "@/types/music";
 
-/**
- * Favorites have two backends. Audius sessions read and write the user's real
- * Audius favorites; Google accounts (no Audius identity) use our own table.
- */
-async function usesAudius(user: CurrentUser): Promise<string | null> {
-  if (user.source !== "audius") return null;
-  return getAccessToken();
-}
+export type FavoriteInput = Pick<
+  MusicTrack,
+  "id" | "title" | "artist" | "artwork" | "duration"
+>;
 
-export async function listFavorites(user: CurrentUser): Promise<MusicTrack[]> {
-  const accessToken = await usesAudius(user);
-
-  if (accessToken && user.audiusUserId) {
-    return getFavoriteTracks({
-      userId: user.audiusUserId,
-      accessToken,
-      limit: 100,
-    });
-  }
-
+export async function listFavorites(userId: string): Promise<MusicTrack[]> {
   const rows = await db
     .select()
     .from(favorites)
-    .where(eq(favorites.userId, user.id))
+    .where(eq(favorites.userId, userId))
     .orderBy(desc(favorites.createdAt))
     .limit(100);
 
@@ -39,53 +22,28 @@ export async function listFavorites(user: CurrentUser): Promise<MusicTrack[]> {
     title: row.title,
     artist: row.artist,
     artwork: row.artwork ?? undefined,
+    artworkSmall: row.artwork ?? undefined,
     duration: row.duration,
     streamUrl: "",
     provider: "audius" as const,
   }));
 }
 
-export async function listFavoriteIds(user: CurrentUser): Promise<string[]> {
-  const accessToken = await usesAudius(user);
-
-  if (accessToken && user.audiusUserId) {
-    const tracks = await getFavoriteTracks({
-      userId: user.audiusUserId,
-      accessToken,
-      limit: 200,
-    });
-    return tracks.map((track) => track.id);
-  }
-
+export async function listFavoriteIds(userId: string): Promise<string[]> {
   const rows = await db
     .select({ trackId: favorites.trackId })
     .from(favorites)
-    .where(eq(favorites.userId, user.id))
+    .where(eq(favorites.userId, userId))
     .limit(500);
 
   return rows.map((row) => row.trackId);
 }
 
-export async function addFavorite(
-  user: CurrentUser,
-  track: Pick<MusicTrack, "id" | "title" | "artist" | "artwork" | "duration">
-): Promise<void> {
-  const accessToken = await usesAudius(user);
-
-  if (accessToken && user.audiusUserId) {
-    await setTrackFavorite({
-      trackId: track.id,
-      userId: user.audiusUserId,
-      accessToken,
-      favorite: true,
-    });
-    return;
-  }
-
+export async function addFavorite(userId: string, track: FavoriteInput) {
   await db
     .insert(favorites)
     .values({
-      userId: user.id,
+      userId,
       trackId: track.id,
       title: track.title,
       artist: track.artist,
@@ -95,23 +53,8 @@ export async function addFavorite(
     .onConflictDoNothing();
 }
 
-export async function removeFavorite(
-  user: CurrentUser,
-  trackId: string
-): Promise<void> {
-  const accessToken = await usesAudius(user);
-
-  if (accessToken && user.audiusUserId) {
-    await setTrackFavorite({
-      trackId,
-      userId: user.audiusUserId,
-      accessToken,
-      favorite: false,
-    });
-    return;
-  }
-
+export async function removeFavorite(userId: string, trackId: string) {
   await db
     .delete(favorites)
-    .where(and(eq(favorites.userId, user.id), eq(favorites.trackId, trackId)));
+    .where(and(eq(favorites.userId, userId), eq(favorites.trackId, trackId)));
 }

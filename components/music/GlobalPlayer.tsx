@@ -1,38 +1,33 @@
 "use client";
 
 import { MusicPlayer } from "@/components/music/MusicPlayer";
-import { selectCurrentTrack, usePlayerStore } from "@/stores/player";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { playerActions } from "@/store/playerSlice";
+import { selectCurrentTrack } from "@/store/selectors";
 
 export function GlobalPlayer() {
-  const currentTrack = usePlayerStore(selectCurrentTrack);
-  const isPlaying = usePlayerStore((s) => s.isPlaying);
-  const isLoading = usePlayerStore((s) => s.isLoading);
-  const currentTime = usePlayerStore((s) => s.currentTime);
-  const duration = usePlayerStore((s) => s.duration);
-  const volume = usePlayerStore((s) => s.volume);
-  const isMuted = usePlayerStore((s) => s.isMuted);
-  const error = usePlayerStore((s) => s.error);
-  const queueLength = usePlayerStore((s) => s.queue.length);
-  const currentIndex = usePlayerStore((s) => s.currentIndex);
+  const dispatch = useAppDispatch();
+  const player = useAppSelector((s) => s.player);
+  const currentTrack = useAppSelector(selectCurrentTrack);
 
   return (
     <MusicPlayer
       currentTrack={currentTrack}
-      isPlaying={isPlaying}
-      isLoading={isLoading}
-      currentTime={currentTime}
-      duration={duration}
-      volume={volume}
-      isMuted={isMuted}
-      error={error}
-      hasPrevious={currentIndex > 0}
-      hasNext={currentIndex < queueLength - 1}
-      onTogglePlay={usePlayerStore.getState().togglePlay}
-      onPrevious={usePlayerStore.getState().previous}
-      onNext={usePlayerStore.getState().next}
-      onSeek={usePlayerStore.getState().seek}
-      onVolumeChange={usePlayerStore.getState().setVolume}
-      onToggleMute={usePlayerStore.getState().toggleMute}
+      isPlaying={player.isPlaying}
+      isLoading={player.isLoading}
+      currentTime={player.currentTime}
+      duration={player.duration}
+      volume={player.volume}
+      isMuted={player.isMuted}
+      error={player.error}
+      hasPrevious={player.currentIndex > 0}
+      hasNext={player.currentIndex < player.queue.length - 1}
+      onTogglePlay={() => dispatch(playerActions.togglePlay())}
+      onPrevious={() => dispatch(playerActions.previous())}
+      onNext={() => dispatch(playerActions.next())}
+      onSeek={(t) => dispatch(playerActions.seek(t))}
+      onVolumeChange={(v) => dispatch(playerActions.setVolume(v))}
+      onToggleMute={() => dispatch(playerActions.toggleMute())}
     />
   );
 }

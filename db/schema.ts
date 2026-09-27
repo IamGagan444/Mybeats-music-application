@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   integer,
   pgTable,
   primaryKey,
@@ -19,10 +20,12 @@ export const users = pgTable("user", {
   email: text("email").unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
-  // Set once a Google user links their Audius account, so Audius-scoped
-  // features can be offered to them too.
+  // Optional Audius link. Enrichment only — never the source of truth for
+  // MyBeats-owned data.
   audiusUserId: text("audiusUserId"),
   audiusHandle: text("audiusHandle"),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
 export const accounts = pgTable(
@@ -87,11 +90,8 @@ export const authenticators = pgTable(
 // --- MyBeats data ---
 
 /**
- * Favorites for accounts that have no Audius identity. Audius-backed users
- * keep using Audius as the source of truth instead of this table.
- *
- * The track snapshot is stored alongside the id so the library renders
- * without N lookups against Audius on every page load.
+ * MyBeats owns favorites. Only the Audius track id plus a display snapshot is
+ * stored — never the catalog itself.
  */
 export const favorites = pgTable(
   "favorite",
@@ -111,5 +111,68 @@ export const favorites = pgTable(
   },
   (table) => [
     uniqueIndex("favorite_user_track_idx").on(table.userId, table.trackId),
+    index("favorite_user_created_idx").on(table.userId, table.createdAt),
   ]
+);
+
+// --- Preferences ---
+
+/** Extensible language catalog: add a row, no code change. */
+export const languages = pgTable("language", {
+  code: text("code").primaryKey(),
+  name: text("name").notNull(),
+  nativeName: text("nativeName").notNull(),
+  sortOrder: integer("sortOrder").notNull().default(100),
+  isActive: boolean("isActive").notNull().default(true),
+});
+
+/**
+ * Scalar preferences. `country` is deliberately separate from language —
+ * where someone lives does not determine what they listen to.
+ */
+export const userPreferences = pgTable("user_preference", {
+  userId: text("userId")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  country: text("country"),
+  onboardedAt: timestamp("onboardedAt", { mode: "date" }),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const userLanguages = pgTable(
+  "user_language",
+  {
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    languageCode: text("languageCode")
+      .notNull()
+      .references(() => languages.code, { onDelete: "cascade" }),
+    rank: integer("rank").notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.languageCode] })]
+);
+
+/** Values constrained to the canonical Audius genre list in lib/genres.ts. */
+export const userGenres = pgTable(
+  "user_genre",
+  {
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    genre: text("genre").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.genre] })]
+);
+
+/** Values constrained to the canonical Audius Mood enum in lib/taxonomy.ts. */
+export const userMoods = pgTable(
+  "user_mood",
+  {
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    mood: text("mood").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.mood] })]
 );

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Providers } from "@/app/providers";
 import { AudioEngine } from "@/components/music/AudioEngine";
 import { FavoritesProvider } from "@/components/music/FavoritesProvider";
+import { PlayerPersistence } from "@/components/music/PlayerPersistence";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getCurrentUser } from "@/lib/current-user";
 import "./globals.css";
@@ -38,11 +40,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>
-            {children}
-            <FavoritesProvider isSignedIn={Boolean(user)} />
-            <AudioEngine />
-          </TooltipProvider>
+          <Providers>
+            <TooltipProvider>
+              {children}
+              <FavoritesProvider isSignedIn={Boolean(user?.myBeatsUserId)} />
+              <PlayerPersistence />
+              <AudioEngine />
+            </TooltipProvider>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

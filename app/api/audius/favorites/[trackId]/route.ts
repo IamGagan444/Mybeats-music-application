@@ -1,29 +1,31 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/current-user";
+import { getMyBeatsUser } from "@/lib/current-user";
 import { addFavorite, removeFavorite } from "@/lib/favorites";
 
-const UNAUTHORIZED = NextResponse.json(
-  { success: false, message: "Sign in to save tracks." },
+const needsAccount = NextResponse.json(
+  { success: false, message: "Sign in with Google to save tracks.", code: "SIGN_IN_REQUIRED" },
   { status: 401 }
 );
+
+function str(value: unknown, fallback: string) {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
 
 export async function POST(
   request: Request,
   ctx: RouteContext<"/api/audius/favorites/[trackId]">
 ) {
-  const user = await getCurrentUser();
-  if (!user) return UNAUTHORIZED;
+  const user = await getMyBeatsUser();
+  if (!user) return needsAccount;
 
   const { trackId } = await ctx.params;
-  // The database backend stores a snapshot so the library renders without
-  // re-fetching every track from Audius.
   const body = await request.json().catch(() => ({}));
 
   try {
-    await addFavorite(user, {
+    await addFavorite(user.id, {
       id: trackId,
-      title: typeof body.title === "string" ? body.title : "Unknown track",
-      artist: typeof body.artist === "string" ? body.artist : "Unknown artist",
+      title: str(body.title, "Unknown track"),
+      artist: str(body.artist, "Unknown artist"),
       artwork: typeof body.artwork === "string" ? body.artwork : undefined,
       duration: typeof body.duration === "number" ? body.duration : 0,
     });
@@ -32,7 +34,7 @@ export async function POST(
     console.error("Add favorite failed:", error);
     return NextResponse.json(
       { success: false, message: "Couldn't save this track." },
-      { status: 502 }
+      { status: 500 }
     );
   }
 }
@@ -41,19 +43,19 @@ export async function DELETE(
   _request: Request,
   ctx: RouteContext<"/api/audius/favorites/[trackId]">
 ) {
-  const user = await getCurrentUser();
-  if (!user) return UNAUTHORIZED;
+  const user = await getMyBeatsUser();
+  if (!user) return needsAccount;
 
   const { trackId } = await ctx.params;
 
   try {
-    await removeFavorite(user, trackId);
+    await removeFavorite(user.id, trackId);
     return NextResponse.json({ success: true, data: { favorite: false } });
   } catch (error) {
     console.error("Remove favorite failed:", error);
     return NextResponse.json(
       { success: false, message: "Couldn't update this track." },
-      { status: 502 }
+      { status: 500 }
     );
   }
 }

@@ -7,8 +7,14 @@ import { Button } from "@/components/ui/button";
 import { hasGoogleAuth } from "@/auth";
 import { getCurrentUser } from "@/lib/current-user";
 
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   if (await getCurrentUser()) redirect("/");
+
+  const { next } = await searchParams;
+  const reason =
+    next === "favorite"
+      ? "Sign in with Google to save this song to your library."
+      : "Save tracks you love and pick up where you left off.";
 
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-16">
@@ -16,9 +22,7 @@ export default async function LoginPage() {
         <div className="flex flex-col items-center gap-3 text-center">
           <AudioLines className="size-10 text-brand" />
           <h1 className="text-2xl font-bold tracking-tight">Log in to MyBeats</h1>
-          <p className="text-sm text-muted-foreground">
-            Save tracks you love and pick up where you left off.
-          </p>
+          <p className="text-sm text-muted-foreground">{reason}</p>
         </div>
 
         <div className="flex flex-col gap-3">

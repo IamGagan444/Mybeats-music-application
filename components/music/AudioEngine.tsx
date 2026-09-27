@@ -1,26 +1,22 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { selectCurrentTrack, usePlayerStore } from "@/stores/player";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { playerActions } from "@/store/playerSlice";
+import { selectCurrentTrack } from "@/store/selectors";
 
-// Difference (seconds) above which a store/audio mismatch is treated as a
-// deliberate seek rather than normal timeupdate drift.
 const SEEK_THRESHOLD = 0.75;
 
-/**
- * The app's single <audio> element. Mounted once in the root layout so
- * playback survives navigation between pages.
- */
+/** The app's single <audio> element, mounted once so playback survives navigation. */
 export function AudioEngine() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const dispatch = useAppDispatch();
 
-  const currentTrack = usePlayerStore(selectCurrentTrack);
-  const isPlaying = usePlayerStore((s) => s.isPlaying);
-  const volume = usePlayerStore((s) => s.volume);
-  const isMuted = usePlayerStore((s) => s.isMuted);
-  const storeTime = usePlayerStore((s) => s.currentTime);
-
-  const streamUrl = currentTrack?.streamUrl;
+  const streamUrl = useAppSelector((s) => selectCurrentTrack(s)?.streamUrl);
+  const isPlaying = useAppSelector((s) => s.player.isPlaying);
+  const volume = useAppSelector((s) => s.player.volume);
+  const isMuted = useAppSelector((s) => s.player.isMuted);
+  const storeTime = useAppSelector((s) => s.player.currentTime);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -33,17 +29,16 @@ export function AudioEngine() {
     const audio = audioRef.current;
     if (!audio || !streamUrl) return;
 
-    if (isPlaying) {
-      audio.play().catch((err: unknown) => {
-        // Autoplay rejection is expected before any user gesture; a genuine
-        // decode/network failure is not.
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        usePlayerStore.getState().syncError("Playback failed for this track.");
-      });
-    } else {
+    if (!isPlaying) {
       audio.pause();
+      return;
     }
-  }, [isPlaying, streamUrl]);
+
+    audio.play().catch((err: unknown) => {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      dispatch(playerActions.syncError("Playback failed for this track."));
+    });
+  }, [isPlaying, streamUrl, dispatch]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -55,6 +50,7 @@ export function AudioEngine() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    // Only react to deliberate seeks, not the element's own timeupdate drift.
     if (Math.abs(audio.currentTime - storeTime) > SEEK_THRESHOLD) {
       audio.currentTime = storeTime;
     }
@@ -64,14 +60,18 @@ export function AudioEngine() {
     <audio
       ref={audioRef}
       preload="metadata"
-      onTimeUpdate={(e) => usePlayerStore.getState().syncTime(e.currentTarget.currentTime)}
-      onDurationChange={(e) =>
-        usePlayerStore.getState().syncDuration(e.currentTarget.duration || 0)
+      onTimeUpdate={(e) =>
+        dispatch(playerActions.syncTime(e.currentTarget.currentTime))
       }
-      onWaiting={() => usePlayerStore.getState().syncLoading(true)}
-      onPlaying={() => usePlayerStore.getState().syncLoading(false)}
-      onEnded={() => usePlayerStore.getState().syncEnded()}
-      onError={() => usePlayerStore.getState().syncError("Could not load this track.")}
+      onDurationChange={(e) =>
+        dispatch(playerActions.syncDuration(e.currentTarget.duration || 0))
+      }
+      onWaiting={() => dispatch(playerActions.syncLoading(true))}
+      onPlaying={() => dispatch(playerActions.syncLoading(false))}
+      onEnded={() => dispatch(playerActions.syncEnded())}
+      onError={() =>
+        dispatch(playerActions.syncError("Could not load this track."))
+      }
     />
   );
 }

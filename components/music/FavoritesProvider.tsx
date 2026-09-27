@@ -1,31 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
-import { useFavoritesStore } from "@/stores/favorites";
+import { useFavoriteIds } from "@/hooks/queries";
+import { useAppDispatch } from "@/store";
+import { favoritesActions } from "@/store/favoritesSlice";
 
-/**
- * Seeds the favorites store once per session so every heart button knows its
- * initial state without each card making its own request.
- */
+/** Seeds the favorites slice once so every heart knows its state without its own request. */
 export function FavoritesProvider({ isSignedIn }: { isSignedIn: boolean }) {
+  const dispatch = useAppDispatch();
+  const { data } = useFavoriteIds(isSignedIn);
+
   useEffect(() => {
-    if (!isSignedIn) {
-      useFavoritesStore.getState().hydrate([], false);
-      return;
-    }
-
-    const controller = new AbortController();
-    fetch("/api/audius/me/favorites", { signal: controller.signal })
-      .then((res) => res.json())
-      .then((json: { success: boolean; data?: string[] }) => {
-        useFavoritesStore.getState().hydrate(json.data ?? [], true);
-      })
-      .catch(() => {
-        // Non-fatal: hearts just start empty.
-      });
-
-    return () => controller.abort();
-  }, [isSignedIn]);
+    dispatch(favoritesActions.hydrate({ ids: data ?? [], isSignedIn }));
+  }, [data, isSignedIn, dispatch]);
 
   return null;
 }
