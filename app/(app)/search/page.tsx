@@ -14,9 +14,9 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   const query = typeof q === "string" ? q : "";
 
   return (
-    <>
-      <Topbar initialQuery={query} />
-      <div className="brand-glow flex min-w-0 flex-col gap-5 sm:gap-7">
+    <div className="brand-glow flex min-w-0 flex-col">
+      <Topbar showSearch={false} />
+      <div className="flex min-w-0 flex-col gap-5 sm:gap-7">
         <div className="flex min-w-0 flex-col gap-1.5">
           <p className="text-xs font-semibold tracking-[0.18em] text-brand uppercase">
             Search
@@ -39,6 +39,6 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
         </div>
         <SearchResults initialQuery={query} autoFocus={!query} />
       </div>
-    </>
+    </div>
   );
 }

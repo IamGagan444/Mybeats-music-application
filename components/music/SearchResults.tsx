@@ -86,6 +86,21 @@ export function SearchResults({
   const [debounced, setDebounced] = useState(initialQuery);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // `initialQuery` comes from the URL (?q=) and this component doesn't
+  // remount between two /search navigations (same route, same position in
+  // the tree) — so without this, a query arriving via link/back-forward
+  // after the first search would update the URL and the h1 above but leave
+  // this pane frozen on the previous results. Adjusting state during
+  // render — not a useEffect — is the documented way to resync from a prop
+  // without an extra render pass. See "Adjusting state based on props":
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [prevInitialQuery, setPrevInitialQuery] = useState(initialQuery);
+  if (initialQuery !== prevInitialQuery) {
+    setPrevInitialQuery(initialQuery);
+    setQuery(initialQuery);
+    setDebounced(initialQuery);
+  }
+
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), DEBOUNCE_MS);
     return () => clearTimeout(id);
@@ -116,20 +131,35 @@ export function SearchResults({
       >
         <Search className="size-4.5 shrink-0 text-muted-foreground" />
         <Input
-          ref={inputRef}
-          type="search"
-          value={query}
-          autoFocus={autoFocus}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search tracks, artists, playlists…"
-          aria-label="Search"
-          inputMode="search"
-          enterKeyHint="search"
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="none"
-          className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:border-0 focus-visible:ring-0 [&::-webkit-search-cancel-button]:appearance-none"
-        />
+  ref={inputRef}
+  type="search"
+  value={query}
+  autoFocus={autoFocus}
+  onChange={(e) => setQuery(e.target.value)}
+  placeholder="Search tracks, artists, playlists… "
+  aria-label="Search"
+  inputMode="search"
+  enterKeyHint="search"
+  autoComplete="off"
+  autoCorrect="off"
+  autoCapitalize="none"
+  className="
+    h-full flex-1
+    !border-0
+    !bg-transparent
+    p-0
+    text-sm
+    !shadow-none
+    outline-none
+    focus:!bg-transparent
+    focus:!border-0
+    focus:!shadow-none
+    focus-visible:!bg-transparent
+    focus-visible:!border-0
+    focus-visible:!ring-0
+    [&::-webkit-search-cancel-button]:appearance-none
+  "
+/>
         {/* Safari/iOS only submits a form on Return when it has a submit button. */}
         <button type="submit" className="sr-only" tabIndex={-1}>
           Search

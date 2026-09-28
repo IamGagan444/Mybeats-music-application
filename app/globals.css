@@ -92,6 +92,8 @@
   --brand: oklch(0.63 0.17 147);
   --brand-foreground: oklch(1 0 0);
   --brand-muted: oklch(0.63 0.17 147 / 12%);
+  --brand-glow-mid: oklch(0.63 0.17 147 / 5%);
+  --brand-glow-end: oklch(0.63 0.17 147 / 0%);
   --surface: oklch(0.976 0.004 150);
   --surface-raised: oklch(1 0 0);
   --shadow-elevate: 0 1px 2px oklch(0 0 0 / 6%), 0 8px 24px oklch(0 0 0 / 8%);
@@ -134,6 +136,8 @@
   --brand: oklch(0.79 0.2 147);
   --brand-foreground: oklch(0.16 0.03 147);
   --brand-muted: oklch(0.79 0.2 147 / 14%);
+  --brand-glow-mid: oklch(0.79 0.2 147 / 6%);
+  --brand-glow-end: oklch(0.79 0.2 147 / 0%);
   --surface: oklch(0.185 0.005 150);
   --surface-raised: oklch(0.235 0.006 150);
   --shadow-elevate: 0 1px 0 oklch(0 0 0 / 40%), 0 8px 24px oklch(0 0 0 / 45%);
@@ -211,7 +215,16 @@
     color: transparent;
   }
 
-  /* Faint brand wash behind hero sections. */
+  /* Ambient brand light behind hero sections — two soft blobs scattered
+     across the top edge, blurred so there's no box/gradient boundary to
+     see. Two things matter here: the gradient's end stop is the brand hue
+     at 0% alpha (--brand-glow-end), not the `transparent` keyword — those
+     aren't the same color, and browsers interpolate gradients in
+     non-premultiplied space, so fading into literal `transparent` muddies
+     toward gray/black partway through instead of thinning out in hue. And
+     `filter: blur()` is what actually diffuses the shape (and its own
+     edges) into the background; the gradient alone, however soft its
+     stops, still ends at a crisp rectangle. */
   .brand-glow {
     position: relative;
     isolation: isolate;
@@ -220,13 +233,21 @@
     content: "";
     position: absolute;
     z-index: -1;
-    inset: -20% -10% auto;
-    height: 320px;
-    background: radial-gradient(
-      60% 100% at 50% 0%,
-      var(--brand-muted) 0%,
-      transparent 70%
-    );
+    inset: -60px -10% auto -10%;
+    height: 460px;
+    background:
+      radial-gradient(
+        circle at 82% 12%,
+        var(--brand-muted) 0%,
+        var(--brand-glow-mid) 35%,
+        var(--brand-glow-end) 68%
+      ),
+      radial-gradient(
+        circle at 14% 22%,
+        var(--brand-glow-mid) 0%,
+        var(--brand-glow-end) 60%
+      );
+    filter: blur(64px);
     pointer-events: none;
   }
 }

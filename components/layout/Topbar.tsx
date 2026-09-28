@@ -10,7 +10,19 @@ import { getCurrentUser } from "@/lib/current-user";
 const ICON_BUTTON =
   "size-11 rounded-full bg-surface-raised text-muted-foreground transition-colors hover:bg-surface-raised hover:text-brand";
 
-export async function Topbar({ initialQuery }: { initialQuery?: string }) {
+export async function Topbar({
+  showSearch = true,
+}: {
+  /**
+   * The Search page renders its own, larger search field inline with its
+   * results (see SearchResults) — that's the canonical input there, live
+   * and navigation-free. Rendering HeaderSearch on top of it duplicated the
+   * control and, since HeaderSearch submits by navigating, could desync
+   * from the results pane below. Every other route still gets HeaderSearch
+   * as the quick-jump-to-search field.
+   */
+  showSearch?: boolean;
+}) {
   const user = await getCurrentUser();
 
   return (
@@ -18,9 +30,7 @@ export async function Topbar({ initialQuery }: { initialQuery?: string }) {
       {/* The sidebar carries the logo from lg up; below that this is the only mark. */}
       <Logo className="shrink-0 lg:hidden" showWordmark={false} />
 
-      <div className="min-w-0 flex-1">
-        <HeaderSearch initialQuery={initialQuery} />
-      </div>
+      <div className="min-w-0 flex-1">{showSearch ? <HeaderSearch /> : null}</div>
 
       {user ? (
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">

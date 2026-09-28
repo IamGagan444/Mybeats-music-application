@@ -11,9 +11,9 @@ import { EMPTY_SEARCH } from "@/types/music";
 
 const DEBOUNCE_MS = 250;
 
-export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
+export function HeaderSearch() {
   const router = useRouter();
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
