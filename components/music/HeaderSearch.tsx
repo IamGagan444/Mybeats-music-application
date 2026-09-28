@@ -87,7 +87,25 @@ export function HeaderSearch() {
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="none"
-          className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:border-0 focus-visible:ring-0 [&::-webkit-search-cancel-button]:appearance-none"
+          className="
+    h-full
+    flex-1
+    !border-0
+    !bg-transparent
+    p-0
+    text-sm
+    !shadow-none
+    outline-none
+    focus:!border-0
+    focus:!bg-transparent
+    focus:!shadow-none
+    focus-visible:!border-0
+    focus-visible:!bg-transparent
+    focus-visible:!shadow-none
+    focus-visible:!ring-0
+    [&::-webkit-search-cancel-button]:appearance-none
+    [&:-webkit-autofill]:!bg-transparent
+  "
         />
         {/* Safari/iOS only submits a form on Return when it has a submit button. */}
         <button type="submit" className="sr-only" tabIndex={-1}>

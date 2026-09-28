@@ -8,7 +8,11 @@ import { TrackArtwork } from "@/components/music/TrackArtwork";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearch } from "@/hooks/queries";
-import { EMPTY_SEARCH, type MusicCollection, type MusicUser } from "@/types/music";
+import {
+  EMPTY_SEARCH,
+  type MusicCollection,
+  type MusicUser,
+} from "@/types/music";
 
 const DEBOUNCE_MS = 350;
 
@@ -106,7 +110,11 @@ export function SearchResults({
     return () => clearTimeout(id);
   }, [query]);
 
-  const { data = EMPTY_SEARCH, isFetching, isError } = useSearch(debounced, {
+  const {
+    data = EMPTY_SEARCH,
+    isFetching,
+    isError,
+  } = useSearch(debounced, {
     full: true,
   });
 
@@ -131,19 +139,19 @@ export function SearchResults({
       >
         <Search className="size-4.5 shrink-0 text-muted-foreground" />
         <Input
-  ref={inputRef}
-  type="search"
-  value={query}
-  autoFocus={autoFocus}
-  onChange={(e) => setQuery(e.target.value)}
-  placeholder="Search tracks, artists, playlists… "
-  aria-label="Search"
-  inputMode="search"
-  enterKeyHint="search"
-  autoComplete="off"
-  autoCorrect="off"
-  autoCapitalize="none"
-  className="
+          ref={inputRef}
+          type="search"
+          value={query}
+          autoFocus={autoFocus}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search tracks, artists, playlists… "
+          aria-label="Search"
+          inputMode="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          className="
     h-full flex-1
     !border-0
     !bg-transparent
@@ -159,7 +167,7 @@ export function SearchResults({
     focus-visible:!ring-0
     [&::-webkit-search-cancel-button]:appearance-none
   "
-/>
+        />
         {/* Safari/iOS only submits a form on Return when it has a submit button. */}
         <button type="submit" className="sr-only" tabIndex={-1}>
           Search
@@ -173,12 +181,16 @@ export function SearchResults({
       ) : isFetching && debounced ? (
         <div className="flex gap-4 overflow-hidden">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-square w-38 rounded-2xl sm:w-41" />
+            <Skeleton
+              key={i}
+              className="aspect-square w-38 rounded-2xl sm:w-41"
+            />
           ))}
         </div>
       ) : isEmpty ? (
         <p className="rounded-2xl border border-dashed border-border py-14 text-center text-sm text-muted-foreground">
-          No results for &ldquo;<span className="break-all">{debounced}</span>&rdquo;
+          No results for &ldquo;<span className="break-all">{debounced}</span>
+          &rdquo;
         </p>
       ) : (
         <>
