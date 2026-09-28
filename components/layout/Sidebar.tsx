@@ -1,6 +1,7 @@
-import { AudioLines, Heart, Home, LogIn, LogOut, Search } from "lucide-react";
+import { Heart, Home, LogIn, LogOut, Search } from "lucide-react";
 import Link from "next/link";
 import { signOutEverywhere } from "@/app/actions/auth";
+import { Logo } from "@/components/layout/Logo";
 import { NavLink } from "@/components/layout/NavLink";
 import { TrackArtwork } from "@/components/music/TrackArtwork";
 import { getCurrentUser } from "@/lib/current-user";
@@ -19,13 +20,7 @@ export async function Sidebar() {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col rounded-3xl bg-surface p-4 lg:flex">
-      <Link
-        href="/"
-        className="mb-8 flex items-center gap-2 px-3 py-4 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-      >
-        <AudioLines className="size-6 text-brand" />
-        <span className="text-lg font-bold tracking-tight">MyBeats</span>
-      </Link>
+      <Logo className="mb-8 px-2 py-4" />
 
       <nav className="flex flex-col gap-1" aria-label="Main">
         {NAV.map(({ href, label, icon }) => (

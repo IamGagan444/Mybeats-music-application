@@ -51,7 +51,7 @@ export function MusicPlayer({
     <div
       role="region"
       aria-label="Music player"
-      className="shrink-0 rounded-3xl bg-surface px-4 py-3 sm:px-6"
+      className="glass shrink-0 rounded-3xl px-4 py-3 shadow-elevate ring-1 ring-border/50 sm:px-6"
     >
       <div className="flex items-center gap-3 sm:gap-6">
         {/* Track identity */}

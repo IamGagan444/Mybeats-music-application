@@ -43,15 +43,15 @@ export function SongRail({
       ) : (
         <div
           id={`rail-${title}`}
-          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 no-scrollbar"
+          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 no-scrollbar sm:mx-0 sm:px-0"
         >
           {tracks.map((track, index) => (
             <article
               key={track.id}
               style={{ "--enter-delay": `${Math.min(index, 8) * 45}ms` } as React.CSSProperties}
-              className="animate-enter group relative w-38 shrink-0 snap-start sm:w-41"
+              className="animate-enter hover-lift group relative w-38 shrink-0 snap-start rounded-2xl sm:w-41"
             >
-              <div className="relative overflow-hidden rounded-2xl">
+              <div className="relative overflow-hidden rounded-2xl shadow-elevate ring-1 ring-border/40">
                 <div className="aspect-square">
                   {/* 150px source for a ~165px slot, and the first screenful
                       loads eagerly so the rail paints without a lazy round-trip. */}

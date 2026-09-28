@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Providers } from "@/app/providers";
@@ -18,10 +18,54 @@ const poppins = Poppins({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const TITLE = "MyBeats — Stream Music Free";
+const DESCRIPTION =
+  "MyBeats is a free music streaming player. Discover trending tracks, follow artists, build your library and listen instantly — no download required.";
+
 export const metadata: Metadata = {
-  title: "MyBeats — Listen on Audius",
-  description:
-    "Stream trending tracks and discover new artists from the Audius network.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: TITLE,
+    template: "%s · MyBeats",
+  },
+  description: DESCRIPTION,
+  applicationName: "MyBeats",
+  keywords: [
+    "MyBeats",
+    "music streaming",
+    "free music player",
+    "online music",
+    "trending songs",
+    "discover artists",
+    "listen to music online",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "MyBeats",
+    url: SITE_URL,
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d0f0d" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

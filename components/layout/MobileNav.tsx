@@ -17,7 +17,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Mobile"
-      className="flex shrink-0 items-center justify-around rounded-2xl bg-surface px-2 py-2 lg:hidden"
+      className="glass flex shrink-0 items-center justify-around rounded-2xl px-2 py-2 shadow-elevate ring-1 ring-border/50 lg:hidden"
     >
       {ITEMS.map(({ href, label, Icon }) => {
         const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -28,7 +28,9 @@ export function MobileNav() {
             aria-current={isActive ? "page" : undefined}
             className={cn(
               "flex flex-1 flex-col items-center gap-1 rounded-xl py-1.5 text-[11px] font-medium transition-colors",
-              isActive ? "text-brand" : "text-muted-foreground"
+              isActive
+                ? "bg-brand/10 font-semibold text-brand"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Icon className="size-5" />

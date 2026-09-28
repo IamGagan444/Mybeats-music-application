@@ -16,7 +16,7 @@ function UserCard({ user }: { user: MusicUser }) {
   return (
     <Link
       href={`/artist/${encodeURIComponent(user.handle)}`}
-      className="group flex w-32 shrink-0 flex-col items-center gap-2 rounded-2xl bg-surface-raised/50 p-4 text-center transition-colors outline-none hover:bg-surface-raised focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-36"
+      className="hover-lift group flex w-32 shrink-0 flex-col items-center gap-2 rounded-2xl bg-surface-raised/60 p-4 text-center outline-none ring-1 ring-border/40 hover:bg-surface-raised focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-36"
     >
       <span className="size-20 overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-105">
         <TrackArtwork src={user.avatar} iconClassName="size-5" />
@@ -38,8 +38,8 @@ function UserCard({ user }: { user: MusicUser }) {
 
 function CollectionCard({ collection }: { collection: MusicCollection }) {
   return (
-    <div className="w-38 shrink-0 sm:w-41">
-      <div className="aspect-square overflow-hidden rounded-2xl">
+    <div className="hover-lift w-38 shrink-0 rounded-2xl sm:w-41">
+      <div className="aspect-square overflow-hidden rounded-2xl shadow-elevate ring-1 ring-border/40">
         <TrackArtwork src={collection.artwork} />
       </div>
       <p className="mt-2 truncate text-sm font-semibold">{collection.name}</p>
@@ -112,9 +112,9 @@ export function SearchResults({
           setDebounced(query.trim());
           inputRef.current?.blur();
         }}
-        className="relative w-full max-w-md"
+        className="flex h-12 w-full max-w-md items-center gap-3 rounded-full bg-surface-raised px-5 ring-1 ring-border/60 transition-[box-shadow] focus-within:ring-2 focus-within:ring-brand/60 hover:ring-border"
       >
-        <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="size-4.5 shrink-0 text-muted-foreground" />
         <Input
           ref={inputRef}
           type="search"
@@ -128,7 +128,7 @@ export function SearchResults({
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="none"
-          className="h-11 rounded-full border-transparent bg-surface-raised pl-11 text-sm"
+          className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:border-0 focus-visible:ring-0 [&::-webkit-search-cancel-button]:appearance-none"
         />
         {/* Safari/iOS only submits a form on Return when it has a submit button. */}
         <button type="submit" className="sr-only" tabIndex={-1}>

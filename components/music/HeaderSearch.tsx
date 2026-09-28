@@ -63,8 +63,12 @@ export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
 
   return (
     <div ref={containerRef} className="relative w-full min-w-0 max-w-sm">
-      <form role="search" onSubmit={submit}>
-        <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+      <form
+        role="search"
+        onSubmit={submit}
+        className="flex h-11 w-full items-center gap-2.5 rounded-full bg-surface-raised px-4 ring-1 ring-border/60 transition-[box-shadow,background-color] focus-within:bg-surface-raised focus-within:ring-2 focus-within:ring-brand/60 hover:ring-border"
+      >
+        <Search className="size-4 shrink-0 text-muted-foreground" />
         <Input
           ref={inputRef}
           type="search"
@@ -83,7 +87,7 @@ export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="none"
-          className="h-10 rounded-full border-transparent bg-surface-raised pl-11 text-sm"
+          className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:border-0 focus-visible:ring-0 [&::-webkit-search-cancel-button]:appearance-none"
         />
         {/* Safari/iOS only submits a form on Return when it has a submit button. */}
         <button type="submit" className="sr-only" tabIndex={-1}>
@@ -92,14 +96,14 @@ export function HeaderSearch({ initialQuery = "" }: { initialQuery?: string }) {
       </form>
 
       {open && suggestions.length > 0 ? (
-        <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-[60svh] overflow-y-auto overscroll-contain rounded-2xl border border-border/60 bg-popover shadow-2xl">
+        <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-[60svh] overflow-y-auto overscroll-contain rounded-2xl border border-border/60 bg-popover p-1 shadow-float">
           <ul>
             {suggestions.map((item) => (
               <li key={item.key}>
                 <Link
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-surface-raised"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors outline-none hover:bg-surface-raised focus-visible:bg-surface-raised"
                 >
                   <span
                     className={`size-9 shrink-0 overflow-hidden ${
